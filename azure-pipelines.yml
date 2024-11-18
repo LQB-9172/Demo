@@ -107,6 +107,8 @@ stages:
           - script: |
               dotnet ef database update
             displayName: 'Migrations cho Cơ sở dữ liệu'
+            workingDirectory: D:\devops\2\s\Demo
+
 
           # 4. Triển khai ứng dụng lên Azure Web App
           - task: AzureRmWebAppDeployment@4
