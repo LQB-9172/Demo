@@ -52,12 +52,12 @@ stages:
         projects: '**/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
 
-    # 5. Chạy Unit Tests
+   # 5. Chạy Unit Tests
     - task: DotNetCoreCLI@2
-    name:'run test'
+      displayName: 'Chạy Unit Tests'
       inputs:
         command: 'test'
-        projects: '**/*xUTest.csproj'
+        projects: '**/*xUTest.csproj'  # Chạy các bài kiểm tra có đuôi xUTest.csproj
         arguments: '--configuration $(buildConfiguration) --logger trx --results-directory $(Build.SourcesDirectory)/TestResults'
 
     # 6. Công bố kết quả kiểm tra
