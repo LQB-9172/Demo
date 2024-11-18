@@ -7,7 +7,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   outputDirectory: '$(Build.ArtifactStagingDirectory)'
-  sonarHostUrl: 'http://192.168.192.1:9000' # URL của server SonarQube
+  sonarHostUrl: 'http://192.168.192.1:9000'  # URL của server SonarQube
   sonarProjectKey: 'WebAPI'                   # Khóa dự án SonarQube
   sonarAuthToken: 'sqa_e87d5f83b8293c086c6af9b465bacfc53ae9ba69'    # Token xác thực SonarQube
 
@@ -23,13 +23,13 @@ stages:
     - task: UseDotNet@2
       inputs:
         packageType: 'sdk'
-        version: '8.0.x'
+        version: '8.0.x'  # Kiểm tra xem phiên bản này có tương thích không
         installationPath: $(Agent.ToolsDirectory)/dotnet
 
     # 2. Cài đặt SonarQube Scanner
     - task: SonarQubePrepare@5
       inputs:
-        SonarQube: 'sonarqubelqb' # Kết nối SonarQube từ Azure DevOps Service Connection
+        SonarQube: 'sonarqubelqb'  # Kết nối SonarQube từ Azure DevOps Service Connection
         scannerMode: 'MSBuild'
         configMode: 'manual'
         projectKey: '$(sonarProjectKey)'
@@ -52,12 +52,12 @@ stages:
         projects: '**/*.csproj'
         arguments: '--configuration $(buildConfiguration)'
 
-   # 5. Chạy Unit Tests
+    # 5. Chạy Unit Tests
     - task: DotNetCoreCLI@2
       displayName: 'Chạy Unit Tests'
       inputs:
         command: 'test'
-        projects: '**/*xUTest1.csproj'  # Chạy các bài kiểm tra có đuôi xUTest.csproj
+        projects: '**/*xUTest.csproj'  # Chạy các bài kiểm tra có đuôi xUTest.csproj
         arguments: '--configuration $(buildConfiguration) --logger trx --results-directory $(Build.SourcesDirectory)/TestResults'
 
     # 6. Công bố kết quả kiểm tra
