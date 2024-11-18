@@ -1,0 +1,125 @@
+trigger:
+- master
+
+pool:
+  name: Default
+
+variables:
+  buildConfiguration: 'Release'
+  outputDirectory: '$(Build.ArtifactStagingDirectory)'
+  sonarHostUrl: 'http://192.168.192.1:9000' # URL của server SonarQube
+  sonarProjectKey: 'WebAPI'                   # Khóa dự án SonarQube
+  sonarAuthToken: 'sqa_e87d5f83b8293c086c6af9b465bacfc53ae9ba69'    # Token xác thực SonarQube
+
+stages:
+# Stage 1: Build và Kiểm tra
+- stage: Build
+  displayName: 'Giai đoạn Xây dựng và Kiểm tra'
+  jobs:
+  - job: BuildAndTest
+    displayName: 'Xây dựng, Chạy Kiểm tra và Phân tích SonarQube'
+    steps:
+    # 1. Cài đặt .NET SDK
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '8.0.x'
+        installationPath: $(Agent.ToolsDirectory)/dotnet
+
+    # 2. Cài đặt SonarQube Scanner
+    - task: SonarQubePrepare@5
+      inputs:
+        SonarQube: 'sonarqubelqb' # Kết nối SonarQube từ Azure DevOps Service Connection
+        scannerMode: 'MSBuild'
+        configMode: 'manual'
+        projectKey: '$(sonarProjectKey)'
+        projectName: 'WebAPI'
+        projectVersion: '1.0'
+        extraProperties: |
+          sonar.host.url=$(sonarHostUrl)
+          sonar.login=$(sonarAuthToken)
+
+    # 3. Khôi phục dependencies
+    - task: NuGetCommand@2
+      inputs:
+        command: 'restore'
+        restoreSolution: '**/*.sln'
+
+    # 4. Build ứng dụng với SonarQube
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+   # 5. Chạy Unit Tests
+    - task: DotNetCoreCLI@2
+      displayName: 'Chạy Unit Tests'
+      inputs:
+        command: 'test'
+        projects: '**/*xUTest1.csproj'  # Chạy các bài kiểm tra có đuôi xUTest.csproj
+        arguments: '--configuration $(buildConfiguration) --logger trx --results-directory $(Build.SourcesDirectory)/TestResults'
+
+    # 6. Công bố kết quả kiểm tra
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFiles: '$(Build.SourcesDirectory)/TestResults/*.trx'
+        testResultsFormat: 'VSTest'
+        failTaskOnFailedTests: true
+
+    # 7. Chạy phân tích SonarQube
+    - task: SonarQubeAnalyze@5
+
+    # 8. Publish ứng dụng Web API
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(outputDirectory)'
+        zipAfterPublish: true
+
+    # 9. Lưu artifact cho bước deploy
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(outputDirectory)'
+        ArtifactName: 'WebAPI'
+
+# Stage 2: Deploy và Database
+- stage: Deploy
+  displayName: 'Giai đoạn Triển khai và Cơ sở dữ liệu'
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - deployment: DeployWebApp
+    displayName: 'Triển khai lên Azure Web App'
+    environment: 'Production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # 1. Tải artifact từ Stage Build
+          - task: DownloadBuildArtifacts@0
+            inputs:
+              buildType: 'current'
+              downloadType: 'specific'
+              artifactName: 'WebAPI'
+              downloadPath: '$(Pipeline.Workspace)'
+
+          # 2. Cài đặt Entity Framework Core CLI Tools
+          - script: |
+              dotnet tool install --global dotnet-ef
+            displayName: 'Cài đặt EF Core Tools'
+
+          # 3. Chạy Migrations Database
+          - script: |
+              dotnet ef database update
+            displayName: 'Migrations cho Cơ sở dữ liệu'
+
+          # 4. Triển khai ứng dụng lên Azure Web App
+          - task: AzureRmWebAppDeployment@4
+            inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'Azure for Students(b42dfa8e-41b4-471d-97b8-f18fdf8dc0e9)'  # Thay bằng tên Subscription của bạn
+              appType: 'webApp'
+              WebAppName: 'lamquocbao'
+              package: '$(Pipeline.Workspace)/WebAPI/**/*.zip'
