@@ -99,7 +99,6 @@ stages:
           steps:
           # 1. Tải artifact từ Stage Build
           - task: DownloadBuildArtifacts@0
-            displayName: 'Tải artifact'
             inputs:
               buildType: 'current'
               downloadType: 'specific'
