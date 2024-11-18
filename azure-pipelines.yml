@@ -57,7 +57,7 @@ stages:
       displayName: 'Chạy Unit Tests'
       inputs:
         command: 'test'
-        projects: '**/*xUTest1.csproj'  # Chạy các bài kiểm tra có đuôi xUTest.csproj
+        projects: '**/*xUTest.csproj'  # Chạy các bài kiểm tra có đuôi xUTest.csproj
         arguments: '--configuration $(buildConfiguration) --logger trx --results-directory $(Build.SourcesDirectory)/TestResults'
 
     # 6. Công bố kết quả kiểm tra
