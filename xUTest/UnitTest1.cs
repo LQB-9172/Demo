@@ -36,7 +36,7 @@
         [Fact]
         public void Test5()
         {
-            int number = 10;
+            int number = 1;
             Assert.True(number > 5);
         }
 
