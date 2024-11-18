@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:skia="clr-namespace:SkiaSharp.Extended.UI.Controls;assembly=SkiaSharp.Extended.UI"
+             x:Class="MauiDemo.Views.LoginView"
+             Title="LoginView">
+    <Grid RowDefinitions=".3*,.7*">
+        <Image Aspect="AspectFill" Source="dotnet_bot.png"/>
+        <Grid BackgroundColor="Aqua" Opacity=".9"/>
+        <StackLayout>
+            <Image x:Name="imageView" 
+                       WidthRequest="200"
+                       HeightRequest="200"
+                       Aspect="AspectFill" />
+        </StackLayout>
+        <Grid Grid.Row="1">
+            <RoundRectangle Margin="-5,-30,-5,-2"
+                            CornerRadius="30,30,0,0"
+                            Fill="White"/>
+            <VerticalStackLayout Margin="30,0,30,0">
+                <Label FontAttributes="Bold"
+                       FontSize="Medium"
+                       Text="Micho"
+                       TextColor="Black"/>
+                <Grid Margin="0,30,0,0" >
+                    <Entry  Placeholder="Nhập địa chỉ email"
+                            VerticalOptions="Center"
+                            BackgroundColor="Transparent"
+                            TextColor="Black"
+                            Margin="0" />
+                </Grid>
+                <Grid Margin="0,30,0,0" >
+                    <Entry   Placeholder="Nhập mật khẩu"
+                             IsPassword="True"
+                             VerticalOptions="Center"
+                             BackgroundColor="Transparent"
+                             TextColor="Black"
+                             Margin="0" />       
+                </Grid>
+                <Button Margin="0,20,0,0"
+                        BackgroundColor="Gray"
+                        HeightRequest="60"
+                        Text="Vào"
+                        TextColor="Yellow"/>
+
+            </VerticalStackLayout>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MauiTest1.Demo"
+             Title="Student Information">
+    <ScrollView>
+        <StackLayout Padding="20">
+            <CollectionView ItemsSource="{Binding}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Padding="10">
+                            <!-- Hiển thị Hình ảnh nếu có -->
+                            <Image Source="{Binding ImageUrl}" 
+                                   WidthRequest="100" 
+                                   HeightRequest="100" 
+                                   HorizontalOptions="Center"
+                                   Aspect="AspectFill" 
+                                   Margin="0, 20, 0, 20" />
+
+                            <Label Text="Student ID:" FontAttributes="Bold" FontSize="Medium" />
+                            <Label Text="{Binding StudentID}" FontSize="Medium" />
+
+                            <Label Text="Name:" FontAttributes="Bold" FontSize="Medium" />
+                            <Label Text="{Binding Name}" FontSize="Medium" />
+
+                            <Label Text="Email:" FontAttributes="Bold" FontSize="Medium" />
+                            <Label Text="{Binding Email}" FontSize="Medium" />
+
+                            <Label Text="User Name:" FontAttributes="Bold" FontSize="Medium" />
+                            <Label Text="{Binding UserName}" FontSize="Medium" />
+
+                            <Label Text="Password:" FontAttributes="Bold" FontSize="Medium" />
+                            <Label Text="{Binding PassWord}" FontSize="Medium" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
