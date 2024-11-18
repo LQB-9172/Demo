@@ -54,6 +54,7 @@ stages:
 
     # 5. Chạy Unit Tests
     - task: DotNetCoreCLI@2
+    name:'run test'
       inputs:
         command: 'test'
         projects: '**/*xUTest.csproj'
