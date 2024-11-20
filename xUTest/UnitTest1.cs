@@ -6,7 +6,7 @@
         [Fact]
         public void Test1()
         {
-            Assert.True(1 + 1 == 3);
+            Assert.True(1 + 1 == 2);
         }
 
         // Test case 2: Kiểm tra một giá trị bằng false
