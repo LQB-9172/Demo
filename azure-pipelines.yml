@@ -7,9 +7,9 @@ pool:
 variables:
   buildConfiguration: 'Release'
   outputDirectory: '$(Build.ArtifactStagingDirectory)'
-  sonarHostUrl: 'http://192.168.192.1:9000'  # URL của server SonarQube
+  sonarHostUrl: 'http://44.212.53.104:9000'  # URL của server SonarQube
   sonarProjectKey: 'WebAPI'                   # Khóa dự án SonarQube
-  sonarAuthToken: 'sqa_e87d5f83b8293c086c6af9b465bacfc53ae9ba69'    # Token xác thực SonarQube
+  sonarAuthToken: 'sqa_d1fe6d51124987639997bd4c056b6a7ff50b280a'    # Token xác thực SonarQube
 
 stages:
 # Stage 1: Build và Kiểm tra
@@ -21,6 +21,7 @@ stages:
     steps:
     # 1. Cài đặt .NET SDK
     - task: UseDotNet@2
+      displayName: 'Cài .NET 8.0'
       inputs:
         packageType: 'sdk'
         version: '8.0.x'  # Kiểm tra xem phiên bản này có tương thích không
@@ -28,6 +29,7 @@ stages:
 
     # 2. Cài đặt SonarQube Scanner
     - task: SonarQubePrepare@5
+      displayName: 'Cài đặt SonarQube'
       inputs:
         SonarQube: 'sonarqubelqb'  # Kết nối SonarQube từ Azure DevOps Service Connection
         scannerMode: 'MSBuild'
@@ -41,12 +43,14 @@ stages:
 
     # 3. Khôi phục dependencies
     - task: NuGetCommand@2
+      displayName: 'Khôi phục NuGet Packages'
       inputs:
         command: 'restore'
         restoreSolution: '**/*.sln'
 
-    # 4. Build ứng dụng với SonarQube
+    # 4. Build ứng dụng
     - task: DotNetCoreCLI@2
+      displayName: 'Build ứng dụng'
       inputs:
         command: 'build'
         projects: '**/*.csproj'
@@ -57,14 +61,16 @@ stages:
       displayName: 'Chạy Unit Tests'
       inputs:
         command: 'test'
-        projects: '**/*xUTest.csproj'  # Chạy các bài kiểm tra có đuôi xUTest.csproj
+        projects: '**/*xUTest.csproj'
         arguments: '--configuration $(buildConfiguration)'      
 
     # 7. Chạy phân tích SonarQube
     - task: SonarQubeAnalyze@5
+      displayName: 'Chạy phân tích SonarQube'
 
     # 8. Publish ứng dụng Web API
     - task: DotNetCoreCLI@2
+      displayName: 'Publish ứng dụng'
       inputs:
         command: 'publish'
         publishWebProjects: true
@@ -73,13 +79,14 @@ stages:
 
     # 9. Lưu artifact cho bước deploy
     - task: PublishBuildArtifacts@1
+      displayName: 'Lưu artifact'
       inputs:
         PathtoPublish: '$(outputDirectory)'
         ArtifactName: 'WebAPI'
 
 # Stage 2: Deploy và Database
 - stage: Deploy
-  displayName: 'Giai đoạn Triển khai và Cơ sở dữ liệu'
+  displayName: 'Giai đoạn Triển khai'
   dependsOn: Build
   condition: succeeded()
   jobs:
@@ -92,6 +99,7 @@ stages:
           steps:
           # 1. Tải artifact từ Stage Build
           - task: DownloadBuildArtifacts@0
+            displayName: 'Download BuildArtifacts'
             inputs:
               buildType: 'current'
               downloadType: 'specific'
@@ -106,15 +114,16 @@ stages:
           # 3. Chạy Migrations Database
           - script: |
               dotnet ef database update
-            displayName: 'Migrations cho Cơ sở dữ liệu'
             workingDirectory: D:\devops\2\s\Demo
+            displayName: 'Migrations cho Cơ sở dữ liệu'
 
 
           # 4. Triển khai ứng dụng lên Azure Web App
           - task: AzureRmWebAppDeployment@4
+            displayName: 'Triển khai ứng dụng lên Azure'
             inputs:
               ConnectionType: 'AzureRM'
-              azureSubscription: 'Azure for Students(b42dfa8e-41b4-471d-97b8-f18fdf8dc0e9)'  # Thay bằng tên Subscription của bạn
+              azureSubscription: 'Azure for Students(b42dfa8e-41b4-471d-97b8-f18fdf8dc0e9)'
               appType: 'webApp'
               WebAppName: 'lamquocbao'
               package: '$(Pipeline.Workspace)/WebAPI/**/*.zip'
