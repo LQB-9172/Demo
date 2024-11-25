@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Demo.Models;
 using Demo.Repositories.Interface;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Demo.Controllers
 {
@@ -30,6 +31,7 @@ namespace Demo.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetAudioById(int id)
         {
             var audio = await _audioRepo.GetAudio(id);

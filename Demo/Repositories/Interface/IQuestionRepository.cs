@@ -10,5 +10,6 @@ namespace Demo.Repositories.Interface
         public Task<int> AddQuestionAsync(QuestionModel model);
         public Task<bool> UpdateQuestionAsync(int id, QuestionModel model);
         public Task<bool> DeleteQuestionAsync(int id);
+        Task<bool> CheckAnswerAsync(int questionId, int selectedAnswer);
     }
 }

@@ -8,17 +8,18 @@ namespace Demo.Data
     public class Lesson
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int LessonID { get; set; }
         public string? Title { get; set; }
         public string? Content { get; set; }
-        public int completed { get; set; }
+        public int Completed { get; set; }
 
         public virtual ICollection<Audio> Audios { get; set; }
         public virtual ICollection<Image> Images { get; set; } 
 
         public Lesson() 
         {
-            completed=0;
+            Completed=0;
             Audios = new List<Audio>();
             Images = new List<Image>();
         }

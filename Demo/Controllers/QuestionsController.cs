@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Demo.Models;
 using Demo.Repositories.Interface;
+using Demo.Repositories;
 
 namespace Demo.Controllers
 {
@@ -14,6 +15,11 @@ namespace Demo.Controllers
         public QuestionsController(IQuestionRepository questionRepo)
         {
             _questionRepo = questionRepo;
+        }
+        public class UserAnswer
+        {
+            public int QuestionID { get; set; }
+            public int SelectedAnswer { get; set; }
         }
 
         [HttpGet]
@@ -43,6 +49,17 @@ namespace Demo.Controllers
             var question = await _questionRepo.GetQuestion(newQuestionID);
             return question == null ? NotFound() : Ok(question);
         }
+        [HttpPost("check-answer")]
+        public async Task<IActionResult> CheckAnswer([FromBody] UserAnswer userAnswer)
+        {
+            var isCorrect = await _questionRepo.CheckAnswerAsync(userAnswer.QuestionID, userAnswer.SelectedAnswer);
+
+            if (isCorrect)
+                return Ok(new { Message = "Đáp án đúng!" });
+            else
+                return Ok(new { Message = "Đáp án sai." });
+        }
+    
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateQuestion(int id, QuestionModel model)

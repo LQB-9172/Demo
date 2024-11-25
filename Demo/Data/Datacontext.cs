@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using static System.Net.Mime.MediaTypeNames;
 using System;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Demo.Data
 {
-    public class Datacontext : DbContext
+    public class Datacontext : IdentityDbContext<AppUser>
     {
         public Datacontext(DbContextOptions<Datacontext> options) : base(options)
         {

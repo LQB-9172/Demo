@@ -22,6 +22,14 @@ namespace Demo.Repositories
             await _context.SaveChangesAsync();
             return newQuestion.QuestionID;
         }
+        public async Task<bool> CheckAnswerAsync(int questionId, int selectedAnswer)
+        {
+            var question = await _context.Questions.FindAsync(questionId);
+            if (question == null)
+                return false;
+
+            return question.CorrectAnswer == selectedAnswer;
+        }
 
         public async Task<bool> DeleteQuestionAsync(int id)
         {
