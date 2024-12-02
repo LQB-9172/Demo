@@ -63,5 +63,10 @@ namespace Demo.Repositories
             }
             return false;
         }
+        public async Task<StudentModel> GetByUserIdAsync(string userId)
+        {
+            var student = await _context.Students.SingleOrDefaultAsync(s => s.UserId == userId);
+            return _mapper.Map<StudentModel>(student);
+        }
     }
 }

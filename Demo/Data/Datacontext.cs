@@ -11,8 +11,23 @@ namespace Demo.Data
         {
 
         }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.Entity<Student>()
+                .HasOne(s => s.User)
+                .WithOne()
+                .HasForeignKey<Student>(s => s.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Entity<RefreshToken>()
+            .HasOne(rt => rt.User)
+            .WithMany()
+            .HasForeignKey(rt => rt.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        }
         #region DbSet
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<Lesson>? Lessons { get; set; }
         public DbSet<Student>? Students { get; set; }
         public DbSet<Audio>? Audios { get; set; }

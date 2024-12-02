@@ -1,4 +1,5 @@
-﻿using Demo.Models;
+﻿using Demo.Data;
+using Demo.Models;
 
 namespace Demo.Repositories.Interface
 {
@@ -9,5 +10,6 @@ namespace Demo.Repositories.Interface
         public Task<int> AddStudentAsync(StudentModel model);
         public Task<bool> UpdateStudentAsync(int id, StudentModel model);
         public Task<bool> DeleteStudentAsync(int id);
+        public Task<StudentModel> GetByUserIdAsync(string userId);
     }
 }

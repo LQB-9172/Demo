@@ -9,5 +9,6 @@ namespace Demo.Repositories.Interface
         public Task<int> AddTestAsync(TestModel model);
         public Task<bool> UpdateTestAsync(int id, TestModel model);
         public Task<bool> DeleteTestAsync(int id);
+
     }
 }

@@ -36,6 +36,12 @@ namespace Demo.Controllers
             return student == null ? NotFound() : Ok(student);
         }
 
+        [HttpGet("by-user/{userId}")]
+        public async Task<IActionResult> GetByUserIdAsync(string userId)
+        {
+            var student = await _studentRepo.GetByUserIdAsync(userId);
+            return student == null ? NotFound() : Ok(student);
+        }
         [HttpPost]
         public async Task<IActionResult> AddStudent(StudentModel model)
         {
