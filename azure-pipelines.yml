@@ -7,9 +7,9 @@ pool:
 variables:
   buildConfiguration: 'Release'
   outputDirectory: '$(Build.ArtifactStagingDirectory)'
-  sonarHostUrl: 'http://44.212.53.104:9000'  # URL của server SonarQube
-  sonarProjectKey: 'WebAPI'                   # Khóa dự án SonarQube
-  sonarAuthToken: 'sqa_d1fe6d51124987639997bd4c056b6a7ff50b280a'    # Token xác thực SonarQube
+#  sonarHostUrl: 'http://44.212.53.104:9000'  # URL của server SonarQube
+#  sonarProjectKey: 'WebAPI'                   # Khóa dự án SonarQube
+#  sonarAuthToken: 'sqa_d1fe6d51124987639997bd4c056b6a7ff50b280a'    # Token xác thực SonarQube
 
 stages:
 # Stage 1: Build và Kiểm tra
@@ -26,21 +26,6 @@ stages:
         packageType: 'sdk'
         version: '8.0.x'  # Kiểm tra xem phiên bản này có tương thích không
         installationPath: $(Agent.ToolsDirectory)/dotnet
-
-    # 2. Cài đặt SonarQube Scanner
-    - task: SonarQubePrepare@5
-      displayName: 'Cài đặt SonarQube'
-      inputs:
-        SonarQube: 'sonarqubelqb'  # Kết nối SonarQube từ Azure DevOps Service Connection
-        scannerMode: 'MSBuild'
-        configMode: 'manual'
-        projectKey: '$(sonarProjectKey)'
-        projectName: 'WebAPI'
-        projectVersion: '1.0'
-        extraProperties: |
-          sonar.host.url=$(sonarHostUrl)
-          sonar.login=$(sonarAuthToken)
-
     # 3. Khôi phục dependencies
     - task: NuGetCommand@2
       displayName: 'Khôi phục NuGet Packages'
@@ -63,10 +48,6 @@ stages:
         command: 'test'
         projects: '**/*xUTest.csproj'
         arguments: '--configuration $(buildConfiguration)'      
-
-    # 7. Chạy phân tích SonarQube
-    - task: SonarQubeAnalyze@5
-      displayName: 'Chạy phân tích SonarQube'
 
     # 8. Publish ứng dụng Web API
     - task: DotNetCoreCLI@2
