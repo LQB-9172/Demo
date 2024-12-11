@@ -16,52 +16,58 @@ namespace Demo.Repositories
             _context = context;
             _mapper = mapper;
         }
-
-        public async Task<int> AddTestAsync(TestModel model)
+        public async Task<List<QuestionModel>> GetRandomQuestionsAsync(int count)
         {
-            var newTest = _mapper.Map<Test>(model);
-            _context.Tests.Add(newTest);
-            await _context.SaveChangesAsync();
-            return newTest.TestID;
+            var questions = await _context.Questions
+                .OrderBy(q => Guid.NewGuid())
+                .Take(count)
+                .ToListAsync();
+
+            var questionModels = _mapper.Map<List<QuestionModel>>(questions);
+
+            questionModels.ForEach(q => q.CorrectAnswer = null);
+
+            return questionModels;
         }
 
-        public async Task<bool> DeleteTestAsync(int id)
+
+        public async Task<int> CalculateScoreAsync(List<QuestionAnswerModel> answers)
         {
-            var deleteTest = await _context.Tests.FindAsync(id);
-            if (deleteTest == null)
+            int score = 0;
+
+            foreach (var answer in answers)
             {
-                return false;
+                // Lấy câu hỏi từ cơ sở dữ liệu
+                var question = await _context.Questions
+                    .FirstOrDefaultAsync(q => q.QuestionID == answer.QuestionId);
+
+                // Kiểm tra nếu câu hỏi tồn tại và so sánh câu trả lời học sinh chọn
+                if (question != null && question.CorrectAnswer == answer.SelectedAnswer)
+                {
+                    score++;
+                }
             }
 
-            _context.Tests.Remove(deleteTest);
-            await _context.SaveChangesAsync();
-            return true;
+            return score;
         }
 
-        public async Task<List<TestModel>> GetAllTestAsync()
-        {
-            var tests = await _context.Tests.ToListAsync();
-            return _mapper.Map<List<TestModel>>(tests);
-        }
 
-        public async Task<TestModel> GetTest(int TestId)
+        public async Task<int> SaveTestResultAsync(int studentId, int totalQuestions, int correctAnswers, double score)
         {
-            var test = await _context.Tests.FindAsync(TestId);
-            return _mapper.Map<TestModel>(test);
-        }
-
-        public async Task<bool> UpdateTestAsync(int id, TestModel model)
-        {
-            var existTest = await _context.Tests.FindAsync(id);
-            if (existTest != null)
+            var testResult = new TestResult
             {
-                _context.Entry(existTest).State = EntityState.Detached;
-                var updateTest = _mapper.Map<Test>(model);
-                _context.Tests.Update(updateTest);
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            return false;
+                StudentId = studentId,
+                TotalQuestions = totalQuestions,
+                CorrectAnswers = correctAnswers,
+                Score = score,
+                CompletionDate = DateTime.UtcNow
+            };
+
+            _context.TestResults.Add(testResult);
+            await _context.SaveChangesAsync();
+
+            return testResult.TestResultId;
         }
     }
 }
+

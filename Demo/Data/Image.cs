@@ -9,6 +9,7 @@ namespace Demo.Data
         [Key]
         public int ImageId { get; set; }
         public required string ImageUrl { get; set; }
+        public required string AudioUrl { get; set; }
         public string? Description { get; set; }
     }
 

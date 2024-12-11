@@ -69,7 +69,3 @@ namespace Demo.Controllers
     }
 
 }
-
-
-
-

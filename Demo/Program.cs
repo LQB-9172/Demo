@@ -27,7 +27,6 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Demo API with JWT Authentication"
     });
 
-    // Cấu hình Security để nhập JWT token
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -86,29 +85,67 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.Events.OnRedirectToLogin = context =>
-    {
-        context.Response.Redirect("/signin-google");
-        return Task.CompletedTask;
-    };
-});
+
 builder.Services.AddHttpClient();
 builder.Services.Configure<AzureBlobSettings>(builder.Configuration.GetSection("AzureBlobStorage"));
 builder.Services.AddScoped<AzureBlobService>();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
-builder.Services.AddScoped<IAudioRepository, AudioRepository>();
-builder.Services.AddScoped<IImageRepository, ImageRepository>();
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITestRepository, TestRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var userManager = services.GetRequiredService<UserManager<AppUser>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+        // Tạo role Admin nếu chưa có
+        if (!await roleManager.RoleExistsAsync("Admin"))
+        {
+            await roleManager.CreateAsync(new IdentityRole("Admin"));
+        }
+        var adminEmail = builder.Configuration["Admin:Email"];
+        var adminPassword = builder.Configuration["Admin:Password"];
+
+        var adminUser = await userManager.FindByEmailAsync(adminEmail);
+        if (adminUser == null)
+        {
+            adminUser = new AppUser
+            {
+                UserName = adminEmail,
+                Email = adminEmail,
+                EmailConfirmed = true
+            };
+            var result = await userManager.CreateAsync(adminUser, adminPassword);
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(adminUser, "Admin");
+                Console.WriteLine($"Admin user created: {adminEmail}");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Admin user already exists.");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"An error occurred while creating the admin user: {ex.Message}");
+    }
+}
 app.UseSwagger();
 app.UseSwaggerUI();
 

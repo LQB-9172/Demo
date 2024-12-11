@@ -42,22 +42,23 @@ namespace Demo.Controllers
             var student = await _studentRepo.GetByUserIdAsync(userId);
             return student == null ? NotFound() : Ok(student);
         }
-        [HttpPost]
-        public async Task<IActionResult> AddStudent(StudentModel model)
-        {
-            var newStudentID = await _studentRepo.AddStudentAsync(model);
-            var student = await _studentRepo.GetStudent(newStudentID);
-            return student == null ? NotFound() : Ok(student);
-        }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateStudent(int id, StudentModel model)
+        public async Task<IActionResult> UpdateStudent(int id, StudentUpdateModel model)
         {
-            if (id != model.StudentID)
-                return BadRequest("ID mismatch");
+            if (id <= 0)
+                return BadRequest("Invalid student ID.");
+
+            // Kiểm tra tính hợp lệ của model
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Gọi repository để cập nhật thông tin
             var result = await _studentRepo.UpdateStudentAsync(id, model);
-            if (result) return Ok();
-            return BadRequest("Student does not exist");
+            if (!result)
+                return NotFound("Student not found.");
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]

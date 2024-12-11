@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Demo.Data
 {
-    [Table("Audio")]
-    public class Audio
+    [Table("Video")]
+    public class Video
     {
         [Key]
-        public int AudioId { get; set; }
-        public required string AudioUrl { get; set; }
+        public int VideoId { get; set; }
+        public required string VideoUrl { get; set; }
         public string? Description { get; set; }
     }
 

@@ -18,56 +18,56 @@ namespace Demo.Controllers
             _lessonRepo = lessonRepo;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllExercises()
-        {
-            try
-            {
-                return Ok(await _exerciseRepo.GetAllExerciseAsync());
-            }
-            catch
-            {
-                return BadRequest();
-            }
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> GetAllExercises()
+        //{
+        //    try
+        //    {
+        //        return Ok(await _exerciseRepo.GetAllExerciseAsync());
+        //    }
+        //    catch
+        //    {
+        //        return BadRequest();
+        //    }
+        //}
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetExerciseById(int id)
-        {
-            var exercise = await _exerciseRepo.GetExercise(id);
-            return exercise == null ? NotFound() : Ok(exercise);
-        }
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> GetExerciseById(int id)
+        //{
+        //    var exercise = await _exerciseRepo.GetExercise(id);
+        //    return exercise == null ? NotFound() : Ok(exercise);
+        //}
 
-        [HttpPost]
-        public async Task<IActionResult> AddExercise(ExerciseModel model)
-        {
-            var lesson = await _lessonRepo.GetLesson(model.LessonID);
-            if (lesson == null)
-            {
-                return BadRequest("Lesson ID does not exist");
-            }
+        //[HttpPost]
+        //public async Task<IActionResult> AddExercise(ExerciseModel model)
+        //{
+        //    var lesson = await _lessonRepo.GetLessonDetails(model.LessonID);
+        //    if (lesson == null)
+        //    {
+        //        return BadRequest("Lesson ID does not exist");
+        //    }
 
-            var newExerciseID = await _exerciseRepo.AddExerciseAsync(model);
-            var exercise = await _exerciseRepo.GetExercise(newExerciseID);
-            return exercise == null ? NotFound() : Ok(exercise);
-        }
+        //    var newExerciseID = await _exerciseRepo.AddExerciseAsync(model);
+        //    var exercise = await _exerciseRepo.GetExercise(newExerciseID);
+        //    return exercise == null ? NotFound() : Ok(exercise);
+        //}
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateExercise(int id, ExerciseModel model)
-        {
-            if (id != model.ExerciseID)
-                return BadRequest("ID mismatch");
-            var result = await _exerciseRepo.UpdateExerciseAsync(id, model);
-            if (result) return Ok();
-            return BadRequest("Exercise does not exist");
-        }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> UpdateExercise(int id, ExerciseModel model)
+        //{
+        //    if (id != model.ExerciseID)
+        //        return BadRequest("ID mismatch");
+        //    var result = await _exerciseRepo.UpdateExerciseAsync(id, model);
+        //    if (result) return Ok();
+        //    return BadRequest("Exercise does not exist");
+        //}
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteExercise(int id)
-        {
-            var result = await _exerciseRepo.DeleteExerciseAsync(id);
-            if (result) return Ok();
-            return BadRequest("Exercise does not exist");
-        }
+        //[HttpDelete("{id}")]
+        //public async Task<IActionResult> DeleteExercise(int id)
+        //{
+        //    var result = await _exerciseRepo.DeleteExerciseAsync(id);
+        //    if (result) return Ok();
+        //    return BadRequest("Exercise does not exist");
+        //}
     }
 }

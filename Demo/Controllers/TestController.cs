@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Demo.Models;
 using Demo.Repositories.Interface;
+using Demo.Repositories;
 
 namespace Demo.Controllers
 {
@@ -16,50 +17,43 @@ namespace Demo.Controllers
             _testRepo = testRepo;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllTests()
+        [HttpGet("random")]
+        public async Task<IActionResult> GetRandomQuestions(int count = 10)
         {
-            try
+            var questions = await _testRepo.GetRandomQuestionsAsync(count);
+
+            if (questions == null || !questions.Any())
+                return NotFound("No questions available.");
+
+            return Ok(questions);
+        }
+
+
+        [HttpPost("submit")]
+        public async Task<IActionResult> SubmitAnswers([FromBody] SubmitTestModel model)
+        {
+            // Kiểm tra tính hợp lệ của studentId và answers
+            if (model == null || model.StudentId <= 0)
+                return BadRequest("Invalid student ID.");
+
+            if (model.Answers == null || !model.Answers.Any())
+                return BadRequest("No answers submitted.");
+
+            // Tính điểm từ các câu trả lời
+            int score = await _testRepo.CalculateScoreAsync(model.Answers);
+
+            // Lưu kết quả bài kiểm tra vào database
+            var resultId = await _testRepo.SaveTestResultAsync(model.StudentId, 10, model.Answers.Count(a => a.SelectedAnswer == a.SelectedAnswer), score);
+
+            return Ok(new
             {
-                return Ok(await _testRepo.GetAllTestAsync());
-            }
-            catch
-            {
-                return BadRequest();
-            }
+                Score = score,
+                TotalQuestions = 10,
+                CorrectAnswers = model.Answers.Count(a => a.SelectedAnswer == a.SelectedAnswer),
+                TestResultId = resultId
+            });
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetTestById(int id)
-        {
-            var test = await _testRepo.GetTest(id);
-            return test == null ? NotFound() : Ok(test);
-        }
 
-        [HttpPost]
-        public async Task<IActionResult> AddTest(TestModel model)
-        {
-            var newTestID = await _testRepo.AddTestAsync(model);
-            var test = await _testRepo.GetTest(newTestID);
-            return test == null ? NotFound() : Ok(test);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateTest(int id, TestModel model)
-        {
-            if (id != model.TestID)
-                return BadRequest("ID mismatch");
-            var result = await _testRepo.UpdateTestAsync(id, model);
-            if (result) return Ok();
-            return BadRequest("Test does not exist");
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTest(int id)
-        {
-            var result = await _testRepo.DeleteTestAsync(id);
-            if (result) return Ok();
-            return BadRequest("Test does not exist");
-        }
     }
 }

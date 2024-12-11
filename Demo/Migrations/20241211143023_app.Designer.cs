@@ -4,6 +4,7 @@ using Demo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Demo.Migrations
 {
     [DbContext(typeof(Datacontext))]
-    partial class DatacontextModelSnapshot : ModelSnapshot
+    [Migration("20241211143023_app")]
+    partial class app
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,6 +96,31 @@ namespace Demo.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Demo.Data.Audio", b =>
+                {
+                    b.Property<int>("AudioId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AudioId"));
+
+                    b.Property<string>("AudioUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("LessonID")
+                        .HasColumnType("int");
+
+                    b.HasKey("AudioId");
+
+                    b.HasIndex("LessonID");
+
+                    b.ToTable("Audio");
+                });
+
             modelBuilder.Entity("Demo.Data.Exercise", b =>
                 {
                     b.Property<int>("ExerciseID")
@@ -151,10 +179,10 @@ namespace Demo.Migrations
                     b.Property<int>("LessonID")
                         .HasColumnType("int");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TitleUrl")
+                    b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("LessonID");
@@ -226,9 +254,14 @@ namespace Demo.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("TestID")
+                        .HasColumnType("int");
+
                     b.HasKey("QuestionID");
 
                     b.HasIndex("ExerciseID");
+
+                    b.HasIndex("TestID");
 
                     b.ToTable("Question");
                 });
@@ -314,59 +347,26 @@ namespace Demo.Migrations
                     b.ToTable("StudentLesson");
                 });
 
-            modelBuilder.Entity("Demo.Data.TestResult", b =>
+            modelBuilder.Entity("Demo.Data.Test", b =>
                 {
-                    b.Property<int>("TestResultId")
+                    b.Property<int>("TestID")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TestResultId"));
-
-                    b.Property<DateTime>("CompletionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("CorrectAnswers")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Score")
-                        .HasColumnType("float");
-
-                    b.Property<int>("StudentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TotalQuestions")
-                        .HasColumnType("int");
-
-                    b.HasKey("TestResultId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("TestResult");
-                });
-
-            modelBuilder.Entity("Demo.Data.Video", b =>
-                {
-                    b.Property<int>("VideoId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VideoId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TestID"));
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("LessonID")
+                    b.Property<int>("Score")
                         .HasColumnType("int");
 
-                    b.Property<string>("VideoUrl")
-                        .IsRequired()
+                    b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("VideoId");
+                    b.HasKey("TestID");
 
-                    b.HasIndex("LessonID");
-
-                    b.ToTable("Video");
+                    b.ToTable("Test");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -502,6 +502,13 @@ namespace Demo.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Demo.Data.Audio", b =>
+                {
+                    b.HasOne("Demo.Data.Lesson", null)
+                        .WithMany("Audios")
+                        .HasForeignKey("LessonID");
+                });
+
             modelBuilder.Entity("Demo.Data.Exercise", b =>
                 {
                     b.HasOne("Demo.Data.Lesson", "Lesson")
@@ -536,6 +543,10 @@ namespace Demo.Migrations
                     b.HasOne("Demo.Data.Exercise", null)
                         .WithMany("Questions")
                         .HasForeignKey("ExerciseID");
+
+                    b.HasOne("Demo.Data.Test", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("TestID");
                 });
 
             modelBuilder.Entity("Demo.Data.RefreshToken", b =>
@@ -577,24 +588,6 @@ namespace Demo.Migrations
                     b.Navigation("Lesson");
 
                     b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("Demo.Data.TestResult", b =>
-                {
-                    b.HasOne("Demo.Data.Student", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("Demo.Data.Video", b =>
-                {
-                    b.HasOne("Demo.Data.Lesson", null)
-                        .WithMany("Audios")
-                        .HasForeignKey("LessonID");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -666,6 +659,11 @@ namespace Demo.Migrations
                         .IsRequired();
 
                     b.Navigation("StudentLessons");
+                });
+
+            modelBuilder.Entity("Demo.Data.Test", b =>
+                {
+                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }
