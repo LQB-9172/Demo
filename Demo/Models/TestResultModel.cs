@@ -2,8 +2,7 @@
 {
     public class TestResultModel
     {
-        public int TotalQuestions { get; set; }
-        public int CorrectAnswers { get; set; }
-        public int Score { get; set; }
+        public double Score { get; set; }
+        public string CompletionDate { get; set; }
     }
 }

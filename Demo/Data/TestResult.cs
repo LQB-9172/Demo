@@ -10,21 +10,20 @@ namespace Demo.Data
         public int TestResultId { get; set; }
 
         [Required]
-        public int StudentId { get; set; } // ID học sinh thực hiện bài kiểm tra
+        public int StudentId { get; set; }
 
         [Required]
-        public int TotalQuestions { get; set; } // Tổng số câu hỏi
+        public int TotalQuestions { get; set; }
 
         [Required]
-        public int CorrectAnswers { get; set; } // Số câu trả lời đúng
+        public int CorrectAnswers { get; set; }
 
         [Required]
-        public double Score { get; set; } // Điểm số (phần trăm)
+        public double Score { get; set; }
 
         [Required]
-        public DateTime CompletionDate { get; set; } // Ngày hoàn thành
+        public DateTime CompletionDate { get; set; }
 
-        // Quan hệ với bảng Student
         [ForeignKey("StudentId")]
         public virtual Student Student { get; set; }
     }

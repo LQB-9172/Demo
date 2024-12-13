@@ -11,7 +11,12 @@ namespace Demo.Helpers
         public AppMapper()
         {
             CreateMap<Data.Question, QuestionModel>().ReverseMap();
-            CreateMap<Data.Image, ImageModel>().ReverseMap();
+            CreateMap<Data.Image, ImageModel>();
+            CreateMap<ImageModel, Data.Image>()
+    .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+    .ForMember(dest => dest.AudioUrl, opt => opt.MapFrom(src => src.AudioUrl)) 
+    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
             CreateMap<Data.Video, VideoModel>().ReverseMap();
             CreateMap<Data.Exercise, ExerciseModel>().ReverseMap();
             CreateMap<Data.Progress, ProgressModel>().ReverseMap();
@@ -30,6 +35,14 @@ namespace Demo.Helpers
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
             .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
             .ForMember(dest => dest.Progress, opt => opt.MapFrom(src => src.Progress.CompletionPercentage));
+            CreateMap<LessonDetailsModel, Lesson>()
+            .ForMember(dest => dest.LessonID, opt => opt.MapFrom(src => src.LessonID))
+            .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+            .ForMember(dest => dest.Videos, opt => opt.MapFrom(src => src.Videos)); 
+
+
+
         }
     }
-}
+    }

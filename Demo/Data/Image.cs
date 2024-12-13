@@ -8,9 +8,18 @@ namespace Demo.Data
     {
         [Key]
         public int ImageId { get; set; }
-        public required string ImageUrl { get; set; }
-        public required string AudioUrl { get; set; }
+
+        [Required]
+        public string ImageUrl { get; set; }
+
+        public string? AudioUrl { get; set; }
+
         public string? Description { get; set; }
+
+        public int LessonID { get; set; } // Foreign Key
+        [ForeignKey("LessonID")]
+        public virtual Lesson Lesson { get; set; } // Navigation property
     }
+
 
 }

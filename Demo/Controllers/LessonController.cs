@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Demo.Models;
 using Demo.Repositories.Interface;
 using Demo.Repositories;
+using Demo.Data;
+using Microsoft.EntityFrameworkCore;
+using Demo.Helpers;
 
 namespace Demo.Controllers
 {
@@ -12,13 +15,15 @@ namespace Demo.Controllers
     {
         private readonly ILessonRepository _lessonRepo;
         private readonly IProgressRepository _ProgressRepository;
+  
 
         public LessonController(ILessonRepository lessonRepo, IProgressRepository ProgressRepository)
         {
             _lessonRepo = lessonRepo;
             _ProgressRepository = ProgressRepository;
-        }
 
+        }
+        
         [HttpGet]
         public async Task<IActionResult> GetAllLessons()
         {
@@ -90,5 +95,27 @@ namespace Demo.Controllers
             if (result) return Ok();
             return BadRequest("Lesson does not exist");
         }
+        [HttpPost("create-with-files")]
+        public async Task<IActionResult> CreateLessonWithFiles([FromBody] LessonDetailsModel request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Title) || request.Images == null || request.Videos == null)
+            {
+                return BadRequest("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.");
+            }
+
+            try
+            {
+                // Gọi repository
+                var createdLesson = await _lessonRepo.CreateLessonWithFilesAsync(request);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi nếu có vấn đề xảy ra
+                return StatusCode(500, new { Message = "Có lỗi xảy ra.", Error = ex.Message });
+            }
+        }
+
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Demo.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Demo.Models
 {
     public class ImageModel
     {
@@ -6,5 +8,7 @@
         public string? ImageUrl { get; set; }
         public string? AudioUrl { get; set; }
         public string? Description { get; set; }
+
     }
+
 }

@@ -68,6 +68,27 @@ namespace Demo.Repositories
 
             return testResult.TestResultId;
         }
+
+        public async Task<List<TestResultModel>> GetTestHistoryAsync(int studentId)
+        {
+            var testResults = await _context.TestResults
+                .Where(tr => tr.StudentId == studentId)
+                .OrderByDescending(tr => tr.CompletionDate)
+                .ToListAsync(); // Lấy dữ liệu ra khỏi database
+
+            // Chuyển đổi múi giờ và định dạng sau khi lấy dữ liệu
+            var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            var testHistory = testResults.Select(tr => new TestResultModel
+            {
+                Score = tr.Score,
+                CompletionDate = TimeZoneInfo.ConvertTimeFromUtc(tr.CompletionDate, timeZoneInfo)
+                                             .ToString("dd/MM/yyyy HH:mm")
+            }).ToList();
+
+            return testHistory;
+        }
+
     }
 }
 

@@ -10,6 +10,10 @@ namespace Demo.Data
         public int VideoId { get; set; }
         public required string VideoUrl { get; set; }
         public string? Description { get; set; }
+        public int LessonID { get; set; }
+
+        [ForeignKey("LessonID")]
+        public virtual Lesson Lesson { get; set; }
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Demo.Data;
+using Demo.Helpers;
 using Demo.Models;
 using Demo.Repositories.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -10,11 +11,13 @@ namespace Demo.Repositories
     {
         private readonly Datacontext _context;
         private readonly IMapper _mapper;
+        private readonly AzureBlobService _blobService;
 
-        public LessonRepository(Datacontext context, IMapper mapper)
+        public LessonRepository(Datacontext context, IMapper mapper, AzureBlobService blobService)
         {
             _context = context;
             _mapper = mapper;
+            _blobService = blobService;
         }
 
         public async Task<int> AddLessonAsync(LessonModel model)
@@ -62,7 +65,7 @@ namespace Demo.Repositories
         {
             var lesson = await _context.Lessons
                 .Include(l => l.Images)
-                .Include(l => l.Audios)
+                .Include(l => l.Videos)
                 .FirstOrDefaultAsync(l => l.LessonID == lessonId);
 
             if (lesson == null) return null;
@@ -75,9 +78,10 @@ namespace Demo.Repositories
                 {
                     ImageId = i.ImageId,
                     ImageUrl = i.ImageUrl,
+                    AudioUrl = i.AudioUrl,
                     Description = i.Description
                 }).ToList(),
-                Videos = lesson.Audios.Select(a => new VideoModel
+                Videos = lesson.Videos.Select(a => new VideoModel
                 {
                     VideoId = a.VideoId,
                     VideoUrl = a.VideoUrl,
@@ -125,5 +129,29 @@ namespace Demo.Repositories
             _context.StudentLessons.Update(studentLesson);
             await _context.SaveChangesAsync();
         }
+
+
+        public async Task<int> CreateLessonWithFilesAsync(LessonDetailsModel request)
+        {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+
+            var lesson = _mapper.Map<Lesson>(request);
+
+            var existingLesson = await _context.Lessons
+                .Include(l => l.Images)
+                .Include(l => l.Videos)
+                .FirstOrDefaultAsync(l => l.LessonID == lesson.LessonID);
+
+            if (existingLesson != null)
+                throw new InvalidOperationException("Lesson đã tồn tại trong hệ thống.");
+            _context.Lessons.Add(lesson);
+
+            await _context.SaveChangesAsync();
+            return lesson.LessonID;
+        }
+
+
+
+
     }
 }

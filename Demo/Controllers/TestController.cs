@@ -53,7 +53,18 @@ namespace Demo.Controllers
                 TestResultId = resultId
             });
         }
+        [HttpGet("history/{studentId}")]
+        public async Task<IActionResult> GetTestHistory(int studentId)
+        {
+            var testHistory = await _testRepo.GetTestHistoryAsync(studentId);
 
+            if (testHistory == null || !testHistory.Any())
+            {
+                return NotFound("No test history found for the given student.");
+            }
+
+            return Ok(testHistory);
+        }
 
     }
 }
