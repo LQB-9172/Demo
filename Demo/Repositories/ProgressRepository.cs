@@ -43,7 +43,7 @@ namespace Demo.Repositories
         }
         public async Task UpdateProgressForAllStudentsAsync()
         {
-            // Lấy danh sách tất cả học sinh
+
             var students = await _context.Students.ToListAsync();
 
             // Lặp qua từng học sinh và cập nhật tiến độ

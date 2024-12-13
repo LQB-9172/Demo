@@ -74,9 +74,8 @@ namespace Demo.Repositories
             var testResults = await _context.TestResults
                 .Where(tr => tr.StudentId == studentId)
                 .OrderByDescending(tr => tr.CompletionDate)
-                .ToListAsync(); // Lấy dữ liệu ra khỏi database
+                .ToListAsync();
 
-            // Chuyển đổi múi giờ và định dạng sau khi lấy dữ liệu
             var timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
             var testHistory = testResults.Select(tr => new TestResultModel
