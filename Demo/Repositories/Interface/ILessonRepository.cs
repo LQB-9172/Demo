@@ -8,7 +8,6 @@ namespace Demo.Repositories.Interface
         public Task<List<LessonModel>> GetAllLessonAsync();
         public Task<List<StudentLessonModel>> GetLessonByStudentIdAsync(int studentId);
         public Task<LessonDetailsModel> GetLessonDetails(int LessonId);
-        public Task<int> AddLessonAsync(LessonModel model);
         public Task<int> CreateLessonWithFilesAsync(LessonDetailsModel request);
         public Task<bool> UpdateLessonAsync(int id, LessonModel model);
         public Task UpdateLessonCompletionAsync(int studentId, int lessonId);

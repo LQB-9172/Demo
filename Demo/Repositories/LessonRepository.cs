@@ -20,26 +20,6 @@ namespace Demo.Repositories
             _blobService = blobService;
         }
 
-        public async Task<int> AddLessonAsync(LessonModel model)
-        {
-            var newLesson = _mapper.Map<Lesson>(model);
-            _context.Lessons.Add(newLesson);
-            await _context.SaveChangesAsync();
-
-            var students = await _context.Students.ToListAsync();
-
-            var studentLessons = students.Select(student => new StudentLesson
-            {
-                StudentID = student.StudentID,
-                LessonID = newLesson.LessonID,
-                IsCompleted = false
-            });
-
-            _context.StudentLessons.AddRange(studentLessons);
-            await _context.SaveChangesAsync();
-            return newLesson.LessonID;
-        }
-
         public async Task<bool> DeleteLessonAsync(int id)
         {
             var studentLessons = _context.StudentLessons.Where(sl => sl.LessonID == id);

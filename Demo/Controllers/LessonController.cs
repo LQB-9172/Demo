@@ -57,15 +57,6 @@ namespace Demo.Controllers
             var lessons = await _lessonRepo.GetLessonByStudentIdAsync(studentId);
             return Ok(lessons);
         }
-        [HttpPost]
-        public async Task<IActionResult> AddLesson(LessonModel model)
-        {
-            var newLessonID = await _lessonRepo.AddLessonAsync(model);
-            var lesson = await _lessonRepo.GetLessonDetails(newLessonID);
-            await _ProgressRepository.UpdateProgressForAllStudentsAsync();
-            return lesson == null ? NotFound() : Ok(lesson);
-        }
-
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateLesson(int id, LessonModel model)
         {
