@@ -147,6 +147,16 @@ namespace Demo.Repositories
             _context.Lessons.Add(lesson);
 
             await _context.SaveChangesAsync();
+            var students = await _context.Students.ToListAsync();
+
+            var studentLessons = students.Select(student => new StudentLesson
+            {
+                StudentID = student.StudentID,
+                LessonID = lesson.LessonID,
+                IsCompleted = false
+            });
+            _context.StudentLessons.AddRange(studentLessons);
+            await _context.SaveChangesAsync();
             return lesson.LessonID;
         }
 

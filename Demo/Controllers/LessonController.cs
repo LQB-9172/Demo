@@ -107,6 +107,7 @@ namespace Demo.Controllers
             {
                 // Gọi repository
                 var createdLesson = await _lessonRepo.CreateLessonWithFilesAsync(request);
+                await _ProgressRepository.UpdateProgressForAllStudentsAsync();
 
                 return Ok();
             }
