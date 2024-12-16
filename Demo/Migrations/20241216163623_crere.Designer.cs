@@ -4,6 +4,7 @@ using Demo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Demo.Migrations
 {
     [DbContext(typeof(Datacontext))]
-    partial class DatacontextModelSnapshot : ModelSnapshot
+    [Migration("20241216163623_crere")]
+    partial class crere
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,6 +96,30 @@ namespace Demo.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Demo.Data.Exercise", b =>
+                {
+                    b.Property<int>("ExerciseID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ExerciseID"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LessonID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ExerciseID");
+
+                    b.HasIndex("LessonID");
+
+                    b.ToTable("Exercise");
+                });
+
             modelBuilder.Entity("Demo.Data.Image", b =>
                 {
                     b.Property<int>("ImageId")
@@ -164,11 +191,16 @@ namespace Demo.Migrations
                     b.Property<int>("CorrectAnswer")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ExerciseID")
+                        .HasColumnType("int");
+
                     b.Property<string>("QuestionText")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("QuestionID");
+
+                    b.HasIndex("ExerciseID");
 
                     b.ToTable("Listening");
                 });
@@ -485,6 +517,17 @@ namespace Demo.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Demo.Data.Exercise", b =>
+                {
+                    b.HasOne("Demo.Data.Lesson", "Lesson")
+                        .WithMany()
+                        .HasForeignKey("LessonID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lesson");
+                });
+
             modelBuilder.Entity("Demo.Data.Image", b =>
                 {
                     b.HasOne("Demo.Data.Lesson", "Lesson")
@@ -494,6 +537,13 @@ namespace Demo.Migrations
                         .IsRequired();
 
                     b.Navigation("Lesson");
+                });
+
+            modelBuilder.Entity("Demo.Data.Listening", b =>
+                {
+                    b.HasOne("Demo.Data.Exercise", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("ExerciseID");
                 });
 
             modelBuilder.Entity("Demo.Data.Progress", b =>
@@ -619,6 +669,11 @@ namespace Demo.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Demo.Data.Exercise", b =>
+                {
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("Demo.Data.Lesson", b =>

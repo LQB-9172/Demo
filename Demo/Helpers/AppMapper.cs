@@ -10,15 +10,15 @@ namespace Demo.Helpers
     {
         public AppMapper()
         {
-            CreateMap<Data.Question, QuestionModel>().ReverseMap();
+            CreateMap<Data.Listening, ListeningModel>().ReverseMap();
+            CreateMap<Data.Reading, ReadingModel>().ReverseMap();
             CreateMap<Data.Image, ImageModel>();
             CreateMap<ImageModel, Data.Image>()
-    .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
-    .ForMember(dest => dest.AudioUrl, opt => opt.MapFrom(src => src.AudioUrl)) 
-    .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl))
+                .ForMember(dest => dest.AudioUrl, opt => opt.MapFrom(src => src.AudioUrl)) 
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             CreateMap<Data.Video, VideoModel>().ReverseMap();
-            CreateMap<Data.Exercise, ExerciseModel>().ReverseMap();
             CreateMap<Data.Progress, ProgressModel>().ReverseMap();
             CreateMap<Data.Student, StudentModel>().ReverseMap();
             CreateMap<Data.Lesson, LessonModel>().ReverseMap();

@@ -46,10 +46,10 @@ namespace Demo.Data
         public DbSet<Lesson>? Lessons { get; set; }
         public DbSet<Student>? Students { get; set; }
         public DbSet<Video>? Videos { get; set; }
-        public DbSet<Exercise>? Exercises { get; set; }
         public DbSet<Image>? Images { get; set; }
         public DbSet<Progress>? Progresses { get; set; }
-        public DbSet<Question>? Questions { get; set; }
+        public DbSet<Listening>? Questions { get; set; }
+        public DbSet<Reading>? Readings { get; set; }
         public DbSet<TestResult>? TestResults { get; set; }
         #endregion
         

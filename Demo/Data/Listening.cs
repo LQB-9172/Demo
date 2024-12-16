@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Demo.Data
 {
-    [Table("Question")]
-    public class Question
+    [Table("Listening")]
+    public class Listening
     {
         [Key]
         public int QuestionID { get; set; }
@@ -14,7 +14,6 @@ namespace Demo.Data
         public required string Answer3 { get; set; }
         public required string Answer4 { get; set; }
         public required int CorrectAnswer { get; set; }
-        public required string ImageUrl { get; set; }
-        public required string AudioUrl { get; set; }
+
     }
 }

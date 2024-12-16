@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Demo.Models;
 using Demo.Repositories.Interface;
 using Demo.Repositories;
+using static Demo.Controllers.ListeningController;
 
 namespace Demo.Controllers
 {
@@ -11,16 +12,18 @@ namespace Demo.Controllers
     public class TestController : ControllerBase
     {
         private readonly ITestRepository _testRepo;
+        private readonly IReadingRepository _readingRepo;
 
-        public TestController(ITestRepository testRepo)
+        public TestController(ITestRepository testRepo, IReadingRepository readingRepo)
         {
             _testRepo = testRepo;
+            _readingRepo = readingRepo;
         }
 
-        [HttpGet("random")]
+        [HttpGet("Listen/random")]
         public async Task<IActionResult> GetRandomQuestions(int count = 10)
         {
-            var questions = await _testRepo.GetRandomQuestionsAsync(count);
+            var questions = await _testRepo.GetRandomListensAsync(count);
 
             if (questions == null || !questions.Any())
                 return NotFound("No questions available.");
@@ -29,7 +32,7 @@ namespace Demo.Controllers
         }
 
 
-        [HttpPost("submit")]
+        [HttpPost("Listen/submit")]
         public async Task<IActionResult> SubmitAnswers([FromBody] SubmitTestModel model)
         {
             // Kiểm tra tính hợp lệ của studentId và answers
@@ -53,7 +56,7 @@ namespace Demo.Controllers
                 TestResultId = resultId
             });
         }
-        [HttpGet("history/{studentId}")]
+        [HttpGet("Listen/history/{studentId}")]
         public async Task<IActionResult> GetTestHistory(int studentId)
         {
             var testHistory = await _testRepo.GetTestHistoryAsync(studentId);
@@ -65,6 +68,34 @@ namespace Demo.Controllers
 
             return Ok(testHistory);
         }
+
+        [HttpPost("Reading/{id}")]
+        public async Task<IActionResult> Reading(int id)
+        {
+            var reading = await _readingRepo.GetReading(id);
+            if (reading == null)
+                return NotFound(new { Message = "Reading không tồn tại." });
+
+            var recognizedText = await _readingRepo.RecognizeSpeechFromMicrophoneAsync();
+
+            if (string.Equals(reading.text, recognizedText, StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new
+                {
+                    Message = "Đáp án đúng!",
+                    RecognizedText = recognizedText
+                });
+            }
+            else
+            {
+                return Ok(new
+                {
+                    Message = "Đáp án sai.",
+                    RecognizedText = recognizedText
+                });
+            }
+        }
+
 
     }
 }

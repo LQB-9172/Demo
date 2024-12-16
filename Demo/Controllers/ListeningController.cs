@@ -8,11 +8,11 @@ namespace Demo.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class QuestionsController : ControllerBase
+    public class ListeningController : ControllerBase
     {
-        private readonly IQuestionRepository _questionRepo;
+        private readonly IListeningRepository _questionRepo;
 
-        public QuestionsController(IQuestionRepository questionRepo)
+        public ListeningController(IListeningRepository questionRepo)
         {
             _questionRepo = questionRepo;
         }
@@ -43,7 +43,7 @@ namespace Demo.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddQuestion(QuestionModel model)
+        public async Task<IActionResult> AddQuestion(ListeningModel model)
         {
             var newQuestionID = await _questionRepo.AddQuestionAsync(model);
             var question = await _questionRepo.GetQuestion(newQuestionID);
@@ -62,7 +62,7 @@ namespace Demo.Controllers
     
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateQuestion(int id, QuestionModel model)
+        public async Task<IActionResult> UpdateQuestion(int id, ListeningModel model)
         {
             if (id != model.QuestionID)
                 return BadRequest("ID mismatch");

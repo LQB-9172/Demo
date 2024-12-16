@@ -16,18 +16,18 @@ namespace Demo.Repositories
             _context = context;
             _mapper = mapper;
         }
-        public async Task<List<QuestionModel>> GetRandomQuestionsAsync(int count)
+        public async Task<List<ListeningModel>> GetRandomListensAsync(int count)
         {
-            var questions = await _context.Questions
+            var listening = await _context.Questions
                 .OrderBy(q => Guid.NewGuid())
                 .Take(count)
                 .ToListAsync();
 
-            var questionModels = _mapper.Map<List<QuestionModel>>(questions);
+            var listeningModels = _mapper.Map<List<ListeningModel>>(listening);
 
-            questionModels.ForEach(q => q.CorrectAnswer = null);
+            listeningModels.ForEach(q => q.CorrectAnswer = null);
 
-            return questionModels;
+            return listeningModels;
         }
 
 
@@ -38,11 +38,11 @@ namespace Demo.Repositories
             foreach (var answer in answers)
             {
                 // Lấy câu hỏi từ cơ sở dữ liệu
-                var question = await _context.Questions
+                var listening = await _context.Questions
                     .FirstOrDefaultAsync(q => q.QuestionID == answer.QuestionId);
 
                 // Kiểm tra nếu câu hỏi tồn tại và so sánh câu trả lời học sinh chọn
-                if (question != null && question.CorrectAnswer == answer.SelectedAnswer)
+                if (listening != null && listening.CorrectAnswer == answer.SelectedAnswer)
                 {
                     score++;
                 }

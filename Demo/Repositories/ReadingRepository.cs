@@ -2,14 +2,19 @@
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Demo.Repositories.Interface;
+using Demo.Data;
+using Demo.Models;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
 
 namespace Demo.Repositories
 {
-    public class SpeechToTextService : ISpeechToTextService
+    public class ReadingRepository : IReadingRepository
     {
         private readonly string _apiKey;
         private readonly string _region;
-
+        private readonly Datacontext _context;
+        private readonly IMapper _mapper;
         private readonly Dictionary<string, string> _corrections = new()
     {
         { "Chữ a.", "Chữ a" },
@@ -51,13 +56,13 @@ namespace Demo.Repositories
         { "Số 7.", "Số 7" },
         { "Số 8.", "Số 8" },
         { "Số 9.", "Số 9" }
-
-
     };
-        public SpeechToTextService(string apiKey, string region)
+        public ReadingRepository(string apiKey, string region, Datacontext context, IMapper mapper)
         {
             _apiKey = apiKey;
             _region = region;
+            _context = context;
+            _mapper = mapper;
         }
 
         public async Task<string> RecognizeSpeechFromMicrophoneAsync()
@@ -92,5 +97,52 @@ namespace Demo.Repositories
             }
             return input;
         }
+        public async Task<int> AddReadingAsync(ReadingModel model)
+        {
+            var newReading = _mapper.Map<Reading>(model);
+            _context.Readings.Add(newReading);
+            await _context.SaveChangesAsync();
+            return newReading.QuestionID;
+        }
+
+        public async Task<bool> DeleteReadingAsync(int id)
+        {
+            var deleteReading = await _context.Readings.FindAsync(id);
+            if (deleteReading == null)
+            {
+                return false;
+            }
+
+            _context.Readings.Remove(deleteReading);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<List<ReadingModel>> GetAllReadingsAsync()
+        {
+            var readings = await _context.Readings.ToListAsync();
+            return _mapper.Map<List<ReadingModel>>(readings);
+        }
+
+        public async Task<ReadingModel> GetReading(int readingId)
+        {
+            var reading = await _context.Readings.FindAsync(readingId);
+            return _mapper.Map<ReadingModel>(reading);
+        }
+
+        public async Task<bool> UpdateReadingAsync(int id, ReadingModel model)
+        {
+            var existReading = await _context.Readings.FindAsync(id);
+            if (existReading != null)
+            {
+                _context.Entry(existReading).State = EntityState.Detached;
+                var updateReading = _mapper.Map<Reading>(model);
+                _context.Readings.Update(updateReading);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
     }
 }
+

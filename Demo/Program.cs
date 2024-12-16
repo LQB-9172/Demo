@@ -1,4 +1,5 @@
-﻿using Demo.Data;
+﻿using AutoMapper;
+using Demo.Data;
 using Demo.Helpers;
 using Demo.Repositories;
 using Demo.Repositories.Interface;
@@ -93,9 +94,8 @@ builder.Services.AddHttpClient();
 builder.Services.Configure<AzureBlobSettings>(builder.Configuration.GetSection("AzureBlobStorage"));
 builder.Services.AddScoped<AzureBlobService>();
 builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IListeningRepository, ListeningRepository>();
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
-builder.Services.AddScoped<IExerciseRepository, ExerciseRepository>();
 builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITestRepository, TestRepository>();
@@ -103,11 +103,11 @@ builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 var configuration = builder.Configuration;
 var apiKey = configuration["AzureSpeech:ApiKey"];
 var region = configuration["AzureSpeech:Region"];
-
-// Đăng ký ISpeechToTextService
-builder.Services.AddScoped<ISpeechToTextService>(sp =>
+builder.Services.AddScoped<IReadingRepository>(sp =>
 {
-    return new SpeechToTextService(apiKey, region);
+    var context = sp.GetRequiredService<Datacontext>();
+    var mapper = sp.GetRequiredService<IMapper>();
+    return new ReadingRepository(apiKey, region, context, mapper);
 });
 
 builder.Services.AddHttpContextAccessor();

@@ -6,18 +6,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Demo.Repositories
 {
-    public class QuestionRepository : IQuestionRepository
+    public class ListeningRepository : IListeningRepository
     {
         private readonly Datacontext _context;
         private readonly IMapper _mapper;
-        public QuestionRepository(Datacontext context, IMapper mapper)
+        public ListeningRepository(Datacontext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
-        public async Task<int> AddQuestionAsync(QuestionModel model)
+        public async Task<int> AddQuestionAsync(ListeningModel model)
         {
-            var newQuestion = _mapper.Map<Question>(model);
+            var newQuestion = _mapper.Map<Listening>(model);
             _context.Questions.Add(newQuestion);
             await _context.SaveChangesAsync();
             return newQuestion.QuestionID;
@@ -44,26 +44,26 @@ namespace Demo.Repositories
             return true;
         }
 
-        public async Task<List<QuestionModel>> GetAllQuestionAsync()
+        public async Task<List<ListeningModel>> GetAllQuestionAsync()
         {
             var questions = await _context.Questions.ToListAsync();
-            return _mapper.Map<List<QuestionModel>>(questions);
+            return _mapper.Map<List<ListeningModel>>(questions);
         }
 
 
-        public async Task<QuestionModel> GetQuestion(int QuestionId)
+        public async Task<ListeningModel> GetQuestion(int QuestionId)
         {
             var question = await _context.Questions.FindAsync(QuestionId);
-            return _mapper.Map<QuestionModel>(question);
+            return _mapper.Map<ListeningModel>(question);
         }
 
-        public async Task<bool> UpdateQuestionAsync(int id, QuestionModel model)
+        public async Task<bool> UpdateQuestionAsync(int id, ListeningModel model)
         {
             var existQuestion = await _context.Questions.FindAsync(id);
             if (existQuestion != null)
             {
                 _context.Entry(existQuestion).State = EntityState.Detached;
-                var updateQuestion = _mapper.Map<Question>(model);
+                var updateQuestion = _mapper.Map<Listening>(model);
                 _context.Questions.Update(updateQuestion);
                 await _context.SaveChangesAsync();
                 return true;
