@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CognitiveServices.Speech;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -57,6 +59,7 @@ builder.Services.AddCors(options => options.AddPolicy("MyCors", build =>
 {
     build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
 }));
+
 builder.Services.AddDbContext<Datacontext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Myconnection"));
@@ -97,6 +100,15 @@ builder.Services.AddScoped<IProgressRepository, ProgressRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ITestRepository, TestRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+var configuration = builder.Configuration;
+var apiKey = configuration["AzureSpeech:ApiKey"];
+var region = configuration["AzureSpeech:Region"];
+
+// Đăng ký ISpeechToTextService
+builder.Services.AddScoped<ISpeechToTextService>(sp =>
+{
+    return new SpeechToTextService(apiKey, region);
+});
 
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
