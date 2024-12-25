@@ -96,7 +96,6 @@ namespace Demo.Controllers
 
             try
             {
-                // Gọi repository
                 var createdLesson = await _lessonRepo.CreateLessonWithFilesAsync(request);
                 await _ProgressRepository.UpdateProgressForAllStudentsAsync();
 
@@ -104,7 +103,6 @@ namespace Demo.Controllers
             }
             catch (Exception ex)
             {
-                // Trả về lỗi nếu có vấn đề xảy ra
                 return StatusCode(500, new { Message = "Có lỗi xảy ra.", Error = ex.Message });
             }
         }

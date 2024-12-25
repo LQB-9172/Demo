@@ -3,6 +3,7 @@ using static System.Net.Mime.MediaTypeNames;
 using System;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Reflection.Emit;
+using Microsoft.AspNetCore.Identity;
 
 namespace Demo.Data
 {
@@ -51,7 +52,11 @@ namespace Demo.Data
         public DbSet<Listening>? Questions { get; set; }
         public DbSet<Reading>? Readings { get; set; }
         public DbSet<TestResult>? TestResults { get; set; }
+        public DbSet<IdentityUserRole<string>> UserRoles { get; set; }
+        public DbSet<IdentityUserClaim<string>> UserClaims { get; set; }
+        public DbSet<IdentityUserLogin<string>> UserLogins { get; set; }
+        public DbSet<IdentityUserToken<string>> UserTokens { get; set; }
         #endregion
-        
+
     }
 }

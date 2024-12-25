@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using static System.Net.WebRequestMethods;
 using Demo.Repositories;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using IEmailSender = Demo.Repositories.Interface.IEmailSender;
 
 namespace Demo.Controllers
 {
@@ -16,10 +19,12 @@ namespace Demo.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly IAccountRepository accounRepo;
+        private readonly IEmailSender _emailSender;
 
-        public AccountsController(IAccountRepository repo)
+        public AccountsController(IAccountRepository repo, IEmailSender emailSender)
         {
             accounRepo = repo;
+            _emailSender = emailSender;
         }
 
         [HttpPost("SignUp")]
@@ -50,6 +55,43 @@ namespace Demo.Controllers
                 RefreshToken = tokenModel.RefreshToken
             });
         }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordModel model)
+        {
+            var user = await accounRepo.FindUserByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return BadRequest(new { Message = "Email không tồn tại trong hệ thống." });
+            }
+
+            var token = await accounRepo.GeneratePasswordResetTokenAsync(user);
+            var resetLink = Url.Action("ResetPassword", "Account", new { token = token, email = user.Email }, Request.Scheme);
+            var emailSubject = "Đặt lại mật khẩu của bạn";
+            var emailBody = $"Mã đặt lại mật khẩu của bạn là: {token}";
+
+            await _emailSender.SendEmailAsync(user.Email, emailSubject, emailBody);
+
+            return Ok(new { Message = "Mã reset password đã được gửi qua email." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
+        {
+            var user = await accounRepo.FindUserByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return BadRequest(new { Message = "Email không tồn tại trong hệ thống." });
+            }
+
+            var result = await accounRepo.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { Message = "Đặt lại mật khẩu không thành công.", Errors = result.Errors });
+            }
+
+            return Ok(new { Message = "Mật khẩu đã được đặt lại thành công." });
+        }
+
         [HttpPost("RefreshToken")]
         public async Task<IActionResult> RefreshToken(string refreshToken)
         {
@@ -65,7 +107,14 @@ namespace Demo.Controllers
                 RefreshToken = newToken.RefreshToken
             });
         }
-        
+        [HttpDelete("{email}")]
+        public async Task<IActionResult> DeleteStudent(string email)
+        {
+            var result = await accounRepo.DeleteUserByEmailAsync(email);
+            if (result) return Ok();
+            return BadRequest("Student does not exist");
+        }
+
     }
 
 }

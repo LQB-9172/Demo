@@ -16,9 +16,9 @@ namespace Demo.Data
 
         public string? Description { get; set; }
 
-        public int LessonID { get; set; } // Foreign Key
+        public int LessonID { get; set; } 
         [ForeignKey("LessonID")]
-        public virtual Lesson Lesson { get; set; } // Navigation property
+        public virtual Lesson Lesson { get; set; }
     }
 
 

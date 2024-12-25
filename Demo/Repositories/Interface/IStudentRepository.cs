@@ -9,7 +9,6 @@ namespace Demo.Repositories.Interface
         public Task<StudentModel> GetStudent(int StudentId);
         //public Task<int> AddStudentAsync(StudentModel model);
         public Task<bool> UpdateStudentAsync(int id, StudentUpdateModel model);
-        public Task<bool> DeleteStudentAsync(int id);
         public Task<StudentModel> GetByUserIdAsync(string userId);
     }
 }

@@ -30,18 +30,14 @@ namespace Demo.Repositories
             return listeningModels;
         }
 
-
         public async Task<int> CalculateScoreAsync(List<QuestionAnswerModel> answers)
         {
             int score = 0;
 
             foreach (var answer in answers)
             {
-                // Lấy câu hỏi từ cơ sở dữ liệu
                 var listening = await _context.Questions
                     .FirstOrDefaultAsync(q => q.QuestionID == answer.QuestionId);
-
-                // Kiểm tra nếu câu hỏi tồn tại và so sánh câu trả lời học sinh chọn
                 if (listening != null && listening.CorrectAnswer == answer.SelectedAnswer)
                 {
                     score++;
@@ -50,8 +46,6 @@ namespace Demo.Repositories
 
             return score;
         }
-
-
         public async Task<int> SaveTestResultAsync(int studentId, int totalQuestions, int correctAnswers, double score)
         {
             var testResult = new TestResult
@@ -62,13 +56,11 @@ namespace Demo.Repositories
                 Score = score,
                 CompletionDate = DateTime.UtcNow
             };
-
             _context.TestResults.Add(testResult);
             await _context.SaveChangesAsync();
 
             return testResult.TestResultId;
         }
-
         public async Task<List<TestResultModel>> GetTestHistoryAsync(int studentId)
         {
             var testResults = await _context.TestResults

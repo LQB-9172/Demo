@@ -35,17 +35,13 @@ namespace Demo.Controllers
         [HttpPost("Listen/submit")]
         public async Task<IActionResult> SubmitAnswers([FromBody] SubmitTestModel model)
         {
-            // Kiểm tra tính hợp lệ của studentId và answers
             if (model == null || model.StudentId <= 0)
                 return BadRequest("Invalid student ID.");
 
             if (model.Answers == null || !model.Answers.Any())
                 return BadRequest("No answers submitted.");
 
-            // Tính điểm từ các câu trả lời
             int score = await _testRepo.CalculateScoreAsync(model.Answers);
-
-            // Lưu kết quả bài kiểm tra vào database
             var resultId = await _testRepo.SaveTestResultAsync(model.StudentId, 10, model.Answers.Count(a => a.SelectedAnswer == a.SelectedAnswer), score);
 
             return Ok(new
@@ -95,7 +91,5 @@ namespace Demo.Controllers
                 });
             }
         }
-
-
     }
 }

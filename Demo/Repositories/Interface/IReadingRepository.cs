@@ -1,4 +1,5 @@
-﻿using Demo.Models;
+﻿using Demo.Data;
+using Demo.Models;
 using System.Threading.Tasks;
 
 namespace Demo.Repositories.Interface

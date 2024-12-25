@@ -5,6 +5,8 @@ using Demo.Repositories.Interface;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -24,6 +26,7 @@ namespace Demo.Repositories
         private readonly Datacontext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly Interface.IEmailSender _emailSender;
 
         public AccountRepository(
             UserManager<AppUser> userManager,
@@ -32,7 +35,8 @@ namespace Demo.Repositories
             RoleManager<IdentityRole> roleManager,
             Datacontext context,
             IHttpContextAccessor httpContextAccessor,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            Interface.IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -41,9 +45,8 @@ namespace Demo.Repositories
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _httpClientFactory = httpClientFactory;
+            _emailSender = emailSender;
         }
-
-        // Generate Access Token
         public string GenerateAccessToken(AppUser user)
         {
             var authClaims = new List<Claim>
@@ -75,8 +78,6 @@ namespace Demo.Repositories
         {
             return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         }
-
-        // Save Refresh Token to Database
         public async Task SaveRefreshTokenAsync(AppUser user, string refreshToken)
         {
             var existingToken = await _context.RefreshTokens.FirstOrDefaultAsync(r => r.UserId == user.Id);
@@ -100,20 +101,16 @@ namespace Demo.Repositories
 
             await _context.SaveChangesAsync();
         }
-
-        // Get Refresh Token by Token String
         public async Task<RefreshToken> GetRefreshTokenAsync(string token)
         {
             return await _context.RefreshTokens.FirstOrDefaultAsync(r => r.Token == token);
         }
-
-        // Get User by Refresh Token
         public async Task<AppUser> GetUserByRefreshTokenAsync(string refreshToken)
         {
             var token = await GetRefreshTokenAsync(refreshToken);
             if (token == null || token.ExpiryDate <= DateTime.Now)
             {
-                return null; // Token không hợp lệ hoặc đã hết hạn
+                return null; 
             }
 
             return await _userManager.FindByIdAsync(token.UserId);
@@ -187,7 +184,7 @@ namespace Demo.Repositories
             var user = await GetUserByRefreshTokenAsync(refreshToken);
             if (user == null)
             {
-                return null; // Token không hợp lệ hoặc đã hết hạn
+                return null;
             }
 
             var newAccessToken = GenerateAccessToken(user);
@@ -201,7 +198,54 @@ namespace Demo.Repositories
                 RefreshToken = newRefreshToken
             };
         }
+        public async Task<AppUser> FindUserByEmailAsync(string email)
+        {
+            return await _userManager.FindByEmailAsync(email);
+        }
 
+        public async Task<IdentityResult> ResetPasswordAsync(AppUser user, string token, string newPassword)
+        {
+            return await _userManager.ResetPasswordAsync(user, token, newPassword);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(AppUser user)
+        {
+            return await _userManager.GeneratePasswordResetTokenAsync(user);
+        }
+        public async Task<bool> DeleteUserByEmailAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var userId = user.Id;
+                    var userRoles = _context.UserRoles.Where(ur => ur.UserId == userId);
+                    _context.UserRoles.RemoveRange(userRoles);
+                    var userClaims = _context.UserClaims.Where(uc => uc.UserId == userId);
+                    _context.UserClaims.RemoveRange(userClaims);
+                    var userLogins = _context.UserLogins.Where(ul => ul.UserId == userId);
+                    _context.UserLogins.RemoveRange(userLogins);
+                    var userTokens = _context.UserTokens.Where(ut => ut.UserId == userId);
+                    _context.UserTokens.RemoveRange(userTokens);
+                    _context.Users.Remove(user);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+
+                    return true;
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+        }
 
     }
 }

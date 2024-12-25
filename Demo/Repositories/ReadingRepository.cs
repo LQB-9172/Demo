@@ -20,7 +20,9 @@ namespace Demo.Repositories
         { "Chữ a.", "Chữ a" },
         { "Chữ á.", "Chữ ă" },
         { "Chữ ớ.", "chữ â" },
+        { "Chữ b.", "Chữ b" },
         { "chữ bờ.", "chữ b" },
+        { "Chữ và.", "chữ b" },
         { "Chữ cờ.", "Chữ c" },
         { "Chữ giờ.", "Chữ d" },
         { "Chữ đờ.", "Chữ đ" },
@@ -36,7 +38,6 @@ namespace Demo.Repositories
         { "Chữ o.", "Chữ o" },
         { "Chữ ô.", "Chữ ô" },
         { "Chữ ơ.", "Chữ ơ" },
-        { "Chữ b.", "Chữ p" },
         { "Chữ q.", "Chữ q" },//quy
         { "Chữ rr.", "Chữ r" },
         { "Chữ sờ.", "Chữ s" },
@@ -64,7 +65,6 @@ namespace Demo.Repositories
             _context = context;
             _mapper = mapper;
         }
-
         public async Task<string> RecognizeSpeechFromMicrophoneAsync()
         {
             var speechConfig = SpeechConfig.FromSubscription(_apiKey, _region);
@@ -104,7 +104,6 @@ namespace Demo.Repositories
             await _context.SaveChangesAsync();
             return newReading.QuestionID;
         }
-
         public async Task<bool> DeleteReadingAsync(int id)
         {
             var deleteReading = await _context.Readings.FindAsync(id);
@@ -117,19 +116,16 @@ namespace Demo.Repositories
             await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<List<ReadingModel>> GetAllReadingsAsync()
         {
             var readings = await _context.Readings.ToListAsync();
             return _mapper.Map<List<ReadingModel>>(readings);
         }
-
         public async Task<ReadingModel> GetReading(int readingId)
         {
             var reading = await _context.Readings.FindAsync(readingId);
             return _mapper.Map<ReadingModel>(reading);
         }
-
         public async Task<bool> UpdateReadingAsync(int id, ReadingModel model)
         {
             var existReading = await _context.Readings.FindAsync(id);
@@ -142,7 +138,7 @@ namespace Demo.Repositories
                 return true;
             }
             return false;
-        }
+        } 
     }
 }
 

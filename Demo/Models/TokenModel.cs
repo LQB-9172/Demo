@@ -4,6 +4,6 @@
     {
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
-        public DateTime ExpiresIn { get; set; } // Thời điểm hết hạn của Access Token
+        public DateTime ExpiresIn { get; set; }
     }
 }

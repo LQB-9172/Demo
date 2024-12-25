@@ -22,7 +22,7 @@ namespace Demo.Controllers
                 return BadRequest("File không hợp lệ.");
 
             var url = await _blobService.UploadFileAsync(file);
-            return Ok(new { Url = url });
+            return Ok(new {url});
         }
     }
 

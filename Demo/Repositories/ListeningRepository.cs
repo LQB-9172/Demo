@@ -30,7 +30,6 @@ namespace Demo.Repositories
 
             return question.CorrectAnswer == selectedAnswer;
         }
-
         public async Task<bool> DeleteQuestionAsync(int id)
         {
             var deleteQuestion = await _context.Questions.FindAsync(id);
@@ -38,25 +37,20 @@ namespace Demo.Repositories
             {
                 return false;
             }
-
             _context.Questions.Remove(deleteQuestion);
             await _context.SaveChangesAsync();
             return true;
         }
-
         public async Task<List<ListeningModel>> GetAllQuestionAsync()
         {
             var questions = await _context.Questions.ToListAsync();
             return _mapper.Map<List<ListeningModel>>(questions);
         }
-
-
         public async Task<ListeningModel> GetQuestion(int QuestionId)
         {
             var question = await _context.Questions.FindAsync(QuestionId);
             return _mapper.Map<ListeningModel>(question);
         }
-
         public async Task<bool> UpdateQuestionAsync(int id, ListeningModel model)
         {
             var existQuestion = await _context.Questions.FindAsync(id);

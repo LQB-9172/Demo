@@ -45,8 +45,6 @@ namespace Demo.Repositories
         {
 
             var students = await _context.Students.ToListAsync();
-
-            // Lặp qua từng học sinh và cập nhật tiến độ
             foreach (var student in students)
             {
                 await UpdateProgressAsync(student.StudentID);

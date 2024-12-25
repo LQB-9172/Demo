@@ -48,25 +48,13 @@ namespace Demo.Controllers
         {
             if (id <= 0)
                 return BadRequest("Invalid student ID.");
-
-            // Kiểm tra tính hợp lệ của model
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-
-            // Gọi repository để cập nhật thông tin
             var result = await _studentRepo.UpdateStudentAsync(id, model);
             if (!result)
                 return NotFound("Student not found.");
 
             return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteStudent(int id)
-        {
-            var result = await _studentRepo.DeleteStudentAsync(id);
-            if (result) return Ok();
-            return BadRequest("Student does not exist");
         }
     }
 }
